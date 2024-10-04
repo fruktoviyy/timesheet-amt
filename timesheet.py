@@ -28,7 +28,7 @@ try:
 
     
     print(select_days())
-    
+    time.sleep(5)
 
 
 
