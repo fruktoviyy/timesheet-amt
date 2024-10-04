@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import datetime
 import time
 
 url = "http://portal/SiteDirectory/timesheet/default.aspx?CalendarPeriod=week&CalendarDate=24%2E09%2E2024"
