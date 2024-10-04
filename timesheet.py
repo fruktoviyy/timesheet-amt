@@ -30,6 +30,9 @@ try:
     print(select_days())
     time.sleep(5)
 
+    def determine_dates():
+        
+
 
 
 
