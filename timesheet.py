@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import WebDriverException
 import datetime
 import time
 
@@ -32,11 +33,12 @@ try:
     time.sleep(5)
 
     def determine_dates():
+        return "hi"
         
 
 
 
 
 
-except Exception as e:
+except WebDriverException as e:
     print(f"Возникла ошибка:{e}")
