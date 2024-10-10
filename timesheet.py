@@ -1,34 +1,25 @@
+import time
+import random
+import re
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import WebDriverException
-
 from datetime import datetime, timedelta
-import time
 
 
 
-
-user_dates = input("Напишите дату начала и конца недели, за которую необходимо отправить timesheet (пример ввода: 09.09.2024-13.09.2024)\n")
-rezhim_raboti = input("Выберете, в каком режиме работы вы находились на этой неделе: 1 - В офисе, 2 - Вне офиса, 3 - Командировка, 4 - Дома. Напишите одну цифру, которая соотвествует выбору.\n")
-
-url_day, url_month, url_year = user_dates[:2], user_dates[3:5], user_dates[6:10]
-
-url = f"http://portal/SiteDirectory/timesheet/default.aspx?CalendarPeriod=week&CalendarDate={url_day}%2E{url_month}%2E{url_year}"
+def is_valide_user_dates(date_range): #проверят, что пользователь ввел даты в правильном формате - ДД.ММ.ГГГГ-ДД.ММ.ГГГГ
+     range_pattern = r'^\d{2}\.\d{2}\.\d{4}-\d{2}\.\d{2}\.\d{4}$'
+     return re.match(range_pattern, date_range) is not None
 
 
-place_of_work_selectors = {
-     "1": "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl05_ctl00_ctl00_ctl04_ctl00_ctl00", #"В офисе"
-     "2": "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl05_ctl00_ctl00_ctl04_ctl00_ctl01", #"Вне офиса"
-     "3": "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl05_ctl00_ctl00_ctl04_ctl00_ctl02", #"Командировка"
-     "4": "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl05_ctl00_ctl00_ctl04_ctl00_ctl03"  #"Дома"
-}     
-
-browser = webdriver.Chrome()
-browser.get(url)
-time.sleep(5)
-
-def 
+def choose_type_of_work():
+     with open("nazvanie_rabot.txt", "r", encoding="utf-8") as file:
+          lines = file.readlines()
+     return lines
+     
 
 def select_days():
     list_of_filled_days = browser.find_elements(By.CSS_SELECTOR, ".ms-cal-tweekitem b") #получаем список элементов дней с заполненными днями на выбранной неделе
@@ -64,7 +55,7 @@ def determine_dates(dates_range, user_date_range):
 
         return date_list
 
-def filling_timesheet(date_list):
+def filling_timesheet(date_list, nazvanie_rabot):
     date_list_str = (", ").join(date_list) 
     print("Будут заполненны отчеты по следующим датам: {}".format(date_list_str))
     for i in date_list:
@@ -83,25 +74,57 @@ def filling_timesheet(date_list):
 
          duration_of_work = browser.find_element(By.ID, "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl08_ctl00_ctl00_ctl04_ctl00_ctl00_TextField")
          duration_of_work.clear()
-         start_time_field.send_keys("9")
+         duration_of_work.send_keys("9")
 
          name_of_work = browser.find_element(By.ID, "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl09_ctl00_ctl00_ctl04_ctl00_ctl00_TextField")
          name_of_work.clear()
-         name_of_work.send_keys(nazvanie_rabot)
+         name_of_work.send_keys((random.choice(nazvanie_rabot)).strip())
 
-    time.sleep(5)     
-
-
-
-
-
-
-try:
-    dstes_to_fill = determine_dates(user_dates, select_days())
-    time.sleep(5)
-    filling_timesheet(dstes_to_fill)
+         OK_button = browser.find_element(By.ID, "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_toolBarTbl_RightRptControls_ctl01_ctl00_diidIOSaveItem")
+         OK_button.click()
+         time.sleep(5)
 
        
 
+place_of_work_selectors = {
+     "1": "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl05_ctl00_ctl00_ctl04_ctl00_ctl00", #"В офисе"
+     "2": "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl05_ctl00_ctl00_ctl04_ctl00_ctl01", #"Вне офиса"
+     "3": "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl05_ctl00_ctl00_ctl04_ctl00_ctl02", #"Командировка"
+     "4": "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl05_ctl00_ctl00_ctl04_ctl00_ctl03"  #"Дома"
+}     
+
+
+try:
+    
+    while True:
+         user_dates = input("Напишите дату начала и конца недели, за которую необходимо отправить timesheet (пример ввода: 09.09.2024-13.09.2024)\n")
+         if is_valide_user_dates(user_dates):
+              break
+         else:
+              print("Вы ввели диапазон дат не в правильном формате. Повторите попытку ввода.")
+
+    rezhim_raboti = input("Выберете, в каком режиме работы вы находились на этой неделе: 1 - В офисе, 2 - Вне офиса, 3 - Командировка, 4 - Дома. Напишите одну цифру, которая соотвествует выбору.\n")
+
+    url_day, url_month, url_year = user_dates[:2], user_dates[3:5], user_dates[6:10]
+
+    url = f"http://portal/SiteDirectory/timesheet/default.aspx?CalendarPeriod=week&CalendarDate={url_day}%2E{url_month}%2E{url_year}"
+    
+    browser = webdriver.Chrome()
+    browser.get(url)
+    time.sleep(5)
+
+    dstes_to_fill = determine_dates(user_dates, select_days())
+    time.sleep(5)
+    filling_timesheet(dstes_to_fill, choose_type_of_work())
+    browser.get(url)
+    time.sleep(12)
+
+
 except WebDriverException as e:
     print(f"Возникла ошибка:{e}")
+
+else:
+     print("Ваш отчет за даты {} заполнен. Вам осталось лишь отправить отчёт".format(user_dates))
+
+finally:
+     print("Выполнение работы программы завершено.")
