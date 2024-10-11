@@ -6,6 +6,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime, timedelta
 
 
@@ -66,7 +68,7 @@ def filling_timesheet(date_list, nazvanie_rabot):
          place_of_working.click()
          
          type_of_work = Select(browser.find_element(By.ID, "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl06_ctl00_ctl00_ctl04_ctl00_Lookup"))
-         type_of_work.select_by_value("14")
+         type_of_work.select_by_value(("14" if rezhim_raboti == "1" else  "21" if rezhim_raboti == "2" else "51" ))
 
          start_time_field = browser.find_element(By.ID, "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_ctl05_ctl07_ctl00_ctl00_ctl04_ctl00_ctl00_DateTimeField_DateTimeFieldDate")
          start_time_field.clear()
@@ -82,7 +84,7 @@ def filling_timesheet(date_list, nazvanie_rabot):
 
          OK_button = browser.find_element(By.ID, "ctl00_m_g_153a6dd4_f9c7_4190_b75b_e429452b266f_ctl00_toolBarTbl_RightRptControls_ctl01_ctl00_diidIOSaveItem")
          OK_button.click()
-         time.sleep(5)
+         
 
        
 
@@ -110,11 +112,11 @@ try:
     url = f"http://portal/SiteDirectory/timesheet/default.aspx?CalendarPeriod=week&CalendarDate={url_day}%2E{url_month}%2E{url_year}"
     
     browser = webdriver.Chrome()
+    browser.implicitly_wait(10)
     browser.get(url)
-    time.sleep(5)
-
+    
     dstes_to_fill = determine_dates(user_dates, select_days())
-    time.sleep(5)
+    
     filling_timesheet(dstes_to_fill, choose_type_of_work())
     browser.get(url)
     time.sleep(12)
